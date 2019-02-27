@@ -23,8 +23,34 @@ wait for sometime
 Restart cne service
     Execute Command    ./restart_cne.sh 1
 
-Execute_scenarios
-   ${result}=    Run Process    /root/ue/lteue    ${UE_Path}/${UE_File}    
-   Should Not Contain    ${result.stdout}    FAIL
-   ${result}=    Wait For Process    First
-   Should Be Equal As Integers    ${result.rc}    0
+Get l2Log
+    Open Connection And Log In    ${Board}    ${BD_USER}    ${BD_PASS}
+    SSHLibrary.Get File    ${L2_LOG_PATH1}    ${TARGET_PATH}
+    Log out
+
+Get dbgLog
+    Open Connection And Log In    ${Board}    ${BD_USER}    ${BD_PASS}
+    SSHLibrary.Get File    ${L2_LOG_PATH2}    ${TARGET_PATH}
+    Log out
+
+Get systemLog
+    Open Connection And Log In    ${Board}    ${BD_USER}    ${BD_PASS}
+    SSHLibrary.Get File    ${L2_LOG_PATH3}    ${TARGET_PATH}
+    Log out
+
+Get UE_consoleLog
+    Open Connection And Log In    ${UE}    ${UE_USER}    ${UE_PASS}
+    SSHLibrary.Get File    ${L2_LOG_PATH4}    ${TARGET_PATH}
+    Log out
+
+Get UELog
+    Open Connection And Log In    ${UE}    ${UE_USER}    ${UE_PASS}
+    SSHLibrary.Get File    ${L2_LOG_PATH5}    ${TARGET_PATH}
+    Log out
+
+Collect Logs
+    Get l2Log
+    Get dbgLog
+    Get systemLog
+    Get UELog
+

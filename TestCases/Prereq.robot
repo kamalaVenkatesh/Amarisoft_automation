@@ -38,6 +38,19 @@ UE Configurations
     Put File    ${Config_path}/${UE_File}    ${UE_path}/${UE_File}
 
 Run Scenario 
-    Execute_scenario    ${UE}    ${UE_PASS}    "1"
+    Execute_scenario    ${UE}    ${UE_PASS}   
+
+UE Connected 
+    Check_UE_Status    ${UE}     ${UE_PASS}    ${UE}    "connected"
+
+Send Traffic
+    Check_traffic    ${UE}    ${UE_PASS}   ${VS_IP}    ${VS_PASS}    ${Traffic_Type}    ${UE}
+
+UE Disconnected
+    Check_UE_Status    ${UE}     ${UE_PASS}    ${UE}    "disconnected"
+
+Collect Logs
+    Collect Logs    
+    
 
 
