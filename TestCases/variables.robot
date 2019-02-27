@@ -1,5 +1,4 @@
 *** Variables ***
-${outputdir}      ../Logs/
 #Login Credentials for EPC,UE and Board
 ${EPC}            172.27.1.207
 ${EPC_USER}       labadmin
@@ -16,3 +15,7 @@ ${CELL}           Single_Cell
 ${OAM}            YES
 #Mode FDD/TDD default FDD
 ${MODE}           FDD
+#UE configurations
+${UE_path}        /root/ue/config
+${Config_path}    ../Config
+${UE_File}        ue_64.cfg

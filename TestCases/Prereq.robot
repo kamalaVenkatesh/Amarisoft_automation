@@ -1,8 +1,9 @@
 *** Settings ***
 Documentation     Check EPC Node reachability
 Library           SSHLibrary
-Library           Operatingsystem
+Library           OperatingSystem
 Library           ../Lib/Enb.py
+Library           Process
 Resource          Keywords.robot
 Resource          variables.robot
 
@@ -30,12 +31,13 @@ Resource          variables.robot
 #Board Configurations
 #    Enb_Configurations    ${Board}   ${BD_PASS}    ${OAM}    ${CELL}
 
-Execute Scenarios
+UE Configurations
     Open Connection And Log In    ${UE}    ${UE_USER}    ${UE_PASS}
     Execute Command    service lte stop
     Execute Command     ./trx_sdr/sdr_util upgrade
-    Put File    ../Config/ue_64.cfg    /root/ue/config/ue_new_64.cfg
-    ${value}=    Execute Command    /root/ue/lteue /root/ue/config/ue_new_64.cfg
-    Log    ${value}
+    Put File    ${Config_path}/${UE_File}    ${UE_path}/${UE_File}
+
+Run Scenario 
+    Execute_scenario    ${UE}    ${UE_PASS}    "1"
 
 

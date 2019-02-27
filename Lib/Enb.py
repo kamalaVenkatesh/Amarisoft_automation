@@ -1,3 +1,5 @@
+import paramiko 
+import fileinput
 import os
 import sys
 import time
@@ -8,9 +10,9 @@ def Check_Board_reachability(enb_ip,enb_passwd):
     logger.info("checking reachability")
     fout = open('../Logs/Board.log', 'wb')
     try:
-    #logging into board
+        #logging into board
         child = pexpect.spawn('ssh -o StrictHostKeyChecking=no root@' + enb_ip,
-                    logfile=fout)  # Creates a child obj for spawning ssh to board
+                logfile=fout)  # Creates a child obj for spawning ssh to board
         logger.info("logging into it")
         child.expect('(?i)password:', timeout=10)
         child.sendline(enb_passwd)
@@ -30,7 +32,7 @@ def Enb_Configurations(enb_ip,enb_passwd,OAM,Cell):
         #logging into board
         logger.info("let login into board")
         child = pexpect.spawn('ssh -o StrictHostKeyChecking=no root@' + enb_ip,
-                            logfile=fout)  # Creates a child obj for spawning ssh to board
+                logfile=fout)  # Creates a child obj for spawning ssh to board
         child.expect('(?i)password:', timeout=25)
         child.sendline(enb_passwd)
         logger.debug('login successful')
@@ -68,7 +70,7 @@ def Enb_Configurations(enb_ip,enb_passwd,OAM,Cell):
         child.sendline('exit')
         #opening new terminal
         child = pexpect.spawn('ssh -o StrictHostKeyChecking=no root@' + enb_ip,
-                                                logfile=fout)  # Creates a child obj for spawning ssh to board
+                logfile=fout)  # Creates a child obj for spawning ssh to board
         child.expect('password:', timeout=10)
         child.sendline(enb_passwd)
         child.sendline("echo 'now cell configurations' >> new")
@@ -109,11 +111,96 @@ def Enb_Configurations(enb_ip,enb_passwd,OAM,Cell):
             #child.expect(self.prompt, timeout=30)
         child.sendline('exit')
     except Exception as err:
-            logger.error('Error in Board Configurations SetUp' + str(err))
+        logger.error('Error in Board Configurations SetUp' + str(err))
+        child.sendline('exit')
+
+def Execute_scenario(ue_ip,ue_passwd,ue):
+    prompt = ['\w+\@\w+.*?\#', '\w+\@\w+.*?\$', '\#', '\$', '#', pexpect.EOF]
+    fout = open('../Logs/UE.log', 'wb')
+    try:
+    #logging into board
+        logger.info("let login into UE")
+        child = pexpect.spawn('ssh -o StrictHostKeyChecking=no root@' + ue_ip,
+        logfile=fout)  # Creates a child obj for spawning ssh to ue
+        child.expect('(?i)password:', timeout=25)
+        child.sendline(ue_passwd)
+        logger.debug('ue login successful')
+        #Run scenario
+        #child.sendline("/root/ue/lteue /root/ue/config/64_ue.cfg")
+        #child.expect('SIB FOUND',timeout=20)
+        logger.info("Scenario started successfully")
+        #time.sleep(2000)
+        ssh = paramiko.SSHClient()
+        ssh.load_system_host_keys()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(ip, username="root", password=passwd)
+        res= wait_until(UE_Connected,timeout=20,ssh,ue,status="connected")
+        if res:
+            #send traffic
+            check_uplink()
+            time.sleep()
+            check_downlink()
+        time.sleep()
+        #res=wait_until(UE_Disconnect,timeout=20,ssh,ue,status="disconnected")
+        if res:
+            #teardown
+            pass
+        child.sendline('exit')
+    except Exception as err:
+        logger.error('Error in Board Configurations SetUp' + str(err))
+        child.sendline('exit')
+
+def wait_until(somepredicate, timeout, period=0.25, *args, **kwargs):
+    mustend = time.time() + timeout
+    while time.time() < mustend:
+        if somepredicate(*args, **kwargs): return True
+        time.sleep(period)
+    return False
+
+def UE_Monitor(ssh,ue,status):
+    cmd= "/root/ue/doc/ws.js "  + ip+":9002 '{\"message\": \"ue_get\"}'"
+    #print result
+    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(cmd)
+    if ssh_stderr.read() == "":
+        output_file = ssh_stdout.read()
+        #Now i need to remove first 4 lines in this file
+        remove_lines(output_file,1,3)
+        remove_lines(output_file,2,1)
+        #load it to object
+        obj = json.loads(output_file)
+        #get the status
+        res=UE_Status(obj,status)
+        if res == ue: return ue
+        return 0
 
 
-def UE_configurations():
-    ssh = paramiko.SSHClient()
-    ssh.connect(ue, username=ue_user, password=ue_passwd)
-    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command('./root/trx_sdr/sdr_util upgrade')
-    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command('scp -r /root/ue/config/')
+def UE_Status(obj,status):
+    states=0
+    for i in obj:
+        for k in obj[i]:
+            for l in k:
+                if l == "rrc_state":
+                    if k[l] == "connected":
+                        states=states+1
+    return states
+
+
+def remove_lines(fname,start,count):
+    for line in fileinput.input(fname, inplace=1, backup='.orig'):
+        if start <= fileinput.lineno() < start + count:
+            pass
+        else:
+            print line[:-1]
+    fileinput.close()
+
+def check_uplink():
+    #client
+
+    #server
+    pass
+
+def check_downlink():
+    #client
+
+    #server
+    pass
