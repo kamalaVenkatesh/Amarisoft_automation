@@ -23,6 +23,8 @@ ${UE_path}        /root/ue/config
 ${Config_path}    ../Config
 ${UE_File}        ue_64.cfg
 ${Traffic_Type}   "uplink"
+${ATTACH}         connected
+${DETACH}         disconnected
 #Logs path
 ${L2_LOG_PATH1}         /root/l2.log
 ${L2_LOG_PATH2}         /root/rsys/setup/trace/dbgLog*
