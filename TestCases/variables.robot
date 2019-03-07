@@ -1,11 +1,11 @@
 *** Variables ***
 #Login Credentials for EPC,UE and Board
-${EPC}            172.27.22.71
+${EPC}            172.27.1.207
 ${EPC_USER}       root
 ${EPC_PASS}       root123
-${Board}          172.27.22.157
+${Board}          172.27.1.200
 ${BD_USER}        root
-${BD_PASS}        root123
+${BD_PASS}        
 ${UE}             172.27.22.201
 ${UE_USER}        root
 ${UE_PASS}        toor

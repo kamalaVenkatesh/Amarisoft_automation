@@ -25,27 +25,27 @@ Restart cne service
 
 Get l2Log
     Open Connection And Log In    ${Board}    ${BD_USER}    ${BD_PASS}
-    OperatingSystem.Get File    ${L2_LOG_PATH1}    ${TARGET_PATH}
+    SSHLibrary.Get File    ${L2_LOG_PATH1}    ${TARGET_PATH}
     Log out
 
 Get dbgLog
     Open Connection And Log In    ${Board}    ${BD_USER}    ${BD_PASS}
-    OperatingSystem.Get File    ${L2_LOG_PATH2}    ${TARGET_PATH}
+    SSHLibrary.Get File    ${L2_LOG_PATH2}    ${TARGET_PATH}
     Log out
 
 Get systemLog
     Open Connection And Log In    ${Board}    ${BD_USER}    ${BD_PASS}
-    OperatingSystem.Get File    ${L2_LOG_PATH3}    ${TARGET_PATH}
+    SSHLibrary.Get File    ${L2_LOG_PATH3}    ${TARGET_PATH}
     Log out
 
 Get UE_consoleLog
     Open Connection And Log In    ${UE}    ${UE_USER}    ${UE_PASS}
-    OperatingSystem.Get File    ${L2_LOG_PATH4}    ${TARGET_PATH}
+    SSHLibrary.Get File    ${L2_LOG_PATH4}    ${TARGET_PATH}
     Log out
 
 Get UELog
     Open Connection And Log In    ${UE}    ${UE_USER}    ${UE_PASS}
-    OperatingSystem.Get File    ${L2_LOG_PATH5}    ${TARGET_PATH}
+    SSHLibrary.Get File    ${L2_LOG_PATH5}    ${TARGET_PATH}
     Log out
 
 Collect Logs
