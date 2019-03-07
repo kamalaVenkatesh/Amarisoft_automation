@@ -2,62 +2,50 @@
 Documentation     Check EPC Node reachability
 Library           SSHLibrary
 Library           OperatingSystem
-Library           ../Lib/Enb.py
 Library           Process
+Library           String
 Resource          Keywords.robot
 Resource          variables.robot
-#Test Teardown  run keyword if test failed  Collect Logs
+#Test Setup        automation setup
+#Test Teardown     Teardown setup
 
 *** Test Cases ***
-#Check EPC Reachability
-#    Open Connection And Log In    ${EPC}    ${EPC_USER}    ${EPC_PASS}
-#    Execute Command And Verify Output
-#    Log out
+Run Scenarios
+    ${contents}=    OperatingSystem.Get File    data.txt
+    @{lines}=    String.Split to lines    ${contents}
+    :FOR    ${line}    IN    @{lines}
+            Log    ${line}    
+    Log "done"
 
-#Check UE Reachability
-#    Open Connection And Log In    ${UE}    ${UE_USER}    ${UE_PASS}
-#    Execute Command And Verify Output
-#    Log out
+#64 UE Attach Detach Scenario
+#    Copy Scenario File    "64_ue_attach_detach.cfg"
+#    Run_scenario    64_ue_attach_detach.cfg    
+#    Check_Ue_Status    "connected"
+#    Check_Traffic    
+#    Check_Ue_Status    "disconnected"   
 
-#Check Board Reachability
-#    Open Connection And Log In    ${Board}   ${BD_USER}    ${BD_PASS}
-#    Execute Command And Verify Output
-#    Log out
 
-#EPC Configurations
-#    EPC_Configurations   
 
-Board Configurations
-#    Bringup_Board   
-#     Cell_Configuration
-     OAM_Configurations
+*** Keywords ***
+automation setup
+   Check Setup Reachability
+   Setup Bringup
 
-#UE Configurations
-#    Open Connection And Log In    ${UE}    ${UE_USER}    ${UE_PASS}
-#    Execute Command    service lte stop
-#    Execute Command     ./trx_sdr/sdr_util upgrade
-#    Put File    ${Config_path}/${UE_File}    ${UE_path}/${UE_File}
+Check Setup Reachability
+    Is EPC Reachable
+    Is ENB Reachable
+    IS UE  Reachable
 
-#Run Scenario 
-#    ${output}=    Run_Scenario    ${UE}    ${UE_PASS}   
-#    Should Be Equal    ${output}  "True"  
+Setup Bringup
+    EPC Node Bringup
+    ENB Bringup
+    Amarisoft UE Node Bringup
 
-#UE Connected 
-#    Check_Ue_Status    ${UE}     ${UE_PASS}    ${UE}    ${ATTACH}
-
-#Send Traffic
-#    Check_Traffic    ${UE}    ${UE_PASS}   ${VS_IP}    ${VS_PASS}    ${Traffic_Type}    ${UE}
-
-#UE Disconnected
-#    Check_UE_Status    ${UE}     ${UE_PASS}    ${UE}    ${DETACH}
-
-#Collect Logs
-#    Collect Logs    
-
-Teardown
-    Stop the Scenario
-    Stop EPC
-    Bringdown board
+Teardown setup
+    Collect Logs
+    Clean_EPC
+    Clean_ENB
+    clean_UE
     
 
 

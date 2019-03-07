@@ -1,5 +1,7 @@
 *** Settings  ***********
-Library    ../Lib/Enb.py
+Library           ../Lib/UE.py
+Library           ../Lib/Epc.py
+Library           ../Lib/Enb.py
 
 *** Keywords ***
 Open Connection And Log In
@@ -20,8 +22,38 @@ wait for sometime
     [Arguments]    ${sec}
     sleep    ${sec}
 
-Restart cne service
-    Execute Command    ./restart_cne.sh 1
+Is EPC Reachable
+    Open Connection And Log In    ${EPC_IP}    ${EPC_USER}    ${EPC_PASS}
+    Execute Command And Verify Output
+    Log out
+
+Is UE Reachable
+    Open Connection And Log In    ${UE_IP}    ${UE_USER}    ${UE_PASS}
+    Execute Command And Verify Output
+    Log out
+
+Is ENB Reachable
+    Open Connection And Log In    ${ENB_IP}   ${ENB_USER}    ${ENB_PASS}
+    Execute Command And Verify Output
+    Log out
+
+EPC Node Bringup
+    Clean_EPC
+    EPC_Bringup
+
+ENB Bringup
+    Clean_ENB
+    ENB_Bringup
+
+Amarisoft UE Node Bringup
+    Open Connection And Log In    ${UE_IP}    ${UE_USER}    ${UE_PASS}
+    Execute Command    service lte stop
+    Execute Command     ./trx_sdr/sdr_util upgrade
+
+Copy Scenario File
+    [Arguments]    ${scenario_file}
+    Open Connection And Log In    ${UE_IP}    ${UE_USER}    ${UE_PASS}
+    SSHLibrary.Put File    ${Config_path}/${scenario_file}    ${UE_PATH}/${scenario_file}
 
 Get l2Log
     Open Connection And Log In    ${Board}    ${BD_USER}    ${BD_PASS}
