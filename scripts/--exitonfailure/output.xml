@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot rpa="false" generated="20190227 16:10:24.564" generator="Robot 3.1.1 (Python 2.7.14 on linux2)">
+<suite id="s1" name="Logs &amp; Prereq">
+<suite source="/home/edureka/kamala/Amarisoft_automation/Logs" id="s1-s1" name="Logs">
+<status status="PASS" endtime="20190227 16:10:24.601" starttime="20190227 16:10:24.599"></status>
+</suite>
+<suite source="/home/edureka/kamala/Amarisoft_automation/TestCases/Prereq.robot" id="s1-s2" name="Prereq">
+<test id="s1-s2-t1" name="UE Configurations">
+<kw name="Open Connection And Log In" library="Keywords">
+<arguments>
+<arg>${UE}</arg>
+<arg>${UE_USER}</arg>
+<arg>${UE_PASS}</arg>
+</arguments>
+<kw name="Open Connection" library="SSHLibrary">
+<doc>Opens a new SSH connection to the given ``host`` and ``port``.</doc>
+<arguments>
+<arg>${arg1}</arg>
+</arguments>
+<status status="PASS" endtime="20190227 16:10:24.813" starttime="20190227 16:10:24.812"></status>
+</kw>
+<kw name="Login" library="SSHLibrary">
+<doc>Logs into the SSH server with the given ``username`` and ``password``.</doc>
+<arguments>
+<arg>${arg2}</arg>
+<arg>${arg3}</arg>
+</arguments>
+<msg timestamp="20190227 16:10:24.813" level="INFO">Logging into '172.27.22.201:22' as 'root'.</msg>
+<msg timestamp="20190227 16:10:26.106" level="INFO">Read output: Last login: Wed Feb 27 11:34:34 2019 from 172.24.41.87
+[root@localhost ~]#</msg>
+<msg timestamp="20190227 16:10:26.107" level="INFO">/home/edureka/.local/lib/python2.7/site-packages/paramiko/kex_ecdh_nist.py:39: CryptographyDeprecationWarning: encode_point has been deprecated on EllipticCurvePublicNumbers and will be removed in a future version. Please use EllipticCurvePublicKey.public_bytes to obtain both compressed and uncompressed point encoding.
+  m.add_string(self.Q_C.public_numbers().encode_point())
+/home/edureka/.local/lib/python2.7/site-packages/paramiko/kex_ecdh_nist.py:96: CryptographyDeprecationWarning: Support for unsafe construction of public numbers from encoded data will be removed in a future version. Please use EllipticCurvePublicKey.from_encoded_point
+  self.curve, Q_S_bytes
+/home/edureka/.local/lib/python2.7/site-packages/paramiko/kex_ecdh_nist.py:111: CryptographyDeprecationWarning: encode_point has been deprecated on EllipticCurvePublicNumbers and will be removed in a future version. Please use EllipticCurvePublicKey.public_bytes to obtain both compressed and uncompressed point encoding.
+  hm.add_string(self.Q_C.public_numbers().encode_point())</msg>
+<status status="PASS" endtime="20190227 16:10:26.108" starttime="20190227 16:10:24.813"></status>
+</kw>
+<status status="PASS" endtime="20190227 16:10:26.111" starttime="20190227 16:10:24.811"></status>
+</kw>
+<kw name="Execute Command" library="SSHLibrary">
+<doc>Executes ``command`` on the remote machine and returns its outputs.</doc>
+<arguments>
+<arg>service lte stop</arg>
+</arguments>
+<msg timestamp="20190227 16:10:26.114" level="INFO">Executing command 'service lte stop'.</msg>
+<msg timestamp="20190227 16:10:26.198" level="INFO">Command exited with return code 0.</msg>
+<status status="PASS" endtime="20190227 16:10:26.198" starttime="20190227 16:10:26.113"></status>
+</kw>
+<kw name="Execute Command" library="SSHLibrary">
+<doc>Executes ``command`` on the remote machine and returns its outputs.</doc>
+<arguments>
+<arg>./trx_sdr/sdr_util upgrade</arg>
+</arguments>
+<msg timestamp="20190227 16:10:26.199" level="INFO">Executing command './trx_sdr/sdr_util upgrade'.</msg>
+<msg timestamp="20190227 16:10:26.312" level="INFO">Command exited with return code 0.</msg>
+<status status="PASS" endtime="20190227 16:10:26.312" starttime="20190227 16:10:26.199"></status>
+</kw>
+<kw name="Put File" library="SSHLibrary">
+<doc>Uploads file(s) from the local machine to the remote machine.</doc>
+<arguments>
+<arg>${Config_path}/${UE_File}</arg>
+<arg>${UE_path}/${UE_File}</arg>
+</arguments>
+<msg timestamp="20190227 16:10:26.405" level="INFO">[chan 3] Opened sftp connection (server version 3)</msg>
+<msg timestamp="20190227 16:10:26.446" level="INFO">[chan 4] Opened sftp connection (server version 3)</msg>
+<msg timestamp="20190227 16:10:26.649" level="INFO">'../Config/ue_64.cfg' -&gt; '/root/ue/config/ue_64.cfg'</msg>
+<status status="PASS" endtime="20190227 16:10:26.649" starttime="20190227 16:10:26.312"></status>
+</kw>
+<status status="PASS" endtime="20190227 16:10:26.650" critical="yes" starttime="20190227 16:10:24.810"></status>
+</test>
+<test id="s1-s2-t2" name="Run Scenario">
+<kw name="Execute Scenario" library="Enb">
+<arguments>
+<arg>${UE}</arg>
+<arg>${UE_PASS}</arg>
+</arguments>
+<msg timestamp="20190227 16:10:26.652" level="INFO">let login into UE</msg>
+<msg timestamp="20190227 16:10:57.002" level="ERROR">Fail to Run Scenario : Timeout exceeded.
+&lt;pexpect.pty_spawn.spawn object at 0x7f353123aad0&gt;
+command: /usr/bin/ssh
+args: [u'/usr/bin/ssh', u'-o', u'StrictHostKeyChecking=no', u'root@172.27.22.201']
+buffer (last 100 chars): '0 MHz dl_freq=2655.000 MHz ul_freq=2535.000 MHz (band 7) dl_ant=2 ul_ant=1\r\n(ue) Cell 0: SIB found\r\n'
+before (last 100 chars): '0 MHz dl_freq=2655.000 MHz ul_freq=2535.000 MHz (band 7) dl_ant=2 ul_ant=1\r\n(ue) Cell 0: SIB found\r\n'
+after: &lt;class 'pexpect.exceptions.TIMEOUT'&gt;
+match: None
+match_index: None
+exitstatus: None
+flag_eof: False
+pid: 6283
+child_fd: 10
+closed: False
+timeout: 30
+delimiter: &lt;class 'pexpect.exceptions.EOF'&gt;
+logfile: &lt;open file '../Logs/UE.log', mode 'wb' at 0x7f3531287780&gt;
+logfile_read: None
+logfile_send: None
+maxread: 2000
+ignorecase: False
+searchwindowsize: None
+delaybeforesend: 0.05
+delayafterclose: 0.1
+delayafterterminate: 0.1
+searcher: searcher_re:
+    0: re.compile("(ue) Cell 0: SIB found")</msg>
+<status status="PASS" endtime="20190227 16:10:57.154" starttime="20190227 16:10:26.652"></status>
+</kw>
+<status status="PASS" endtime="20190227 16:10:57.155" critical="yes" starttime="20190227 16:10:26.651"></status>
+</test>
+<test id="s1-s2-t3" name="UE Connected">
+<kw name="Check UE Status" library="Enb">
+<arguments>
+<arg>${UE}</arg>
+<arg>${UE_PASS}</arg>
+<arg>${UE}</arg>
+<arg>"connected"</arg>
+</arguments>
+<msg timestamp="20190227 16:10:57.571" level="INFO">In UE status</msg>
+<msg timestamp="20190227 16:10:57.572" level="INFO">inside UE_Monitor</msg>
+<msg timestamp="20190227 16:10:57.713" level="ERROR">Error in checking UE Status :Error while connecting Nodejs server</msg>
+<status status="PASS" endtime="20190227 16:10:57.838" starttime="20190227 16:10:57.156"></status>
+</kw>
+<status status="PASS" endtime="20190227 16:10:57.838" critical="yes" starttime="20190227 16:10:57.155"></status>
+</test>
+<test id="s1-s2-t4" name="Send Traffic">
+<kw name="Check Traffic" library="Enb">
+<arguments>
+<arg>${UE}</arg>
+<arg>${UE_PASS}</arg>
+<arg>${VS_IP}</arg>
+<arg>${VS_PASS}</arg>
+<arg>${Traffic_Type}</arg>
+<arg>${UE}</arg>
+</arguments>
+<status status="PASS" endtime="20190227 16:10:57.840" starttime="20190227 16:10:57.839"></status>
+</kw>
+<status status="PASS" endtime="20190227 16:10:57.841" critical="yes" starttime="20190227 16:10:57.839"></status>
+</test>
+<test id="s1-s2-t5" name="UE Disconnected">
+<kw name="Check UE Status" library="Enb">
+<arguments>
+<arg>${UE}</arg>
+<arg>${UE_PASS}</arg>
+<arg>${UE}</arg>
+<arg>"disconnected"</arg>
+</arguments>
+<msg timestamp="20190227 16:10:57.963" level="INFO">In UE status</msg>
+<msg timestamp="20190227 16:10:57.963" level="INFO">inside UE_Monitor</msg>
+<msg timestamp="20190227 16:10:58.117" level="ERROR">Error in checking UE Status :Error while connecting Nodejs server</msg>
+<status status="PASS" endtime="20190227 16:10:58.121" starttime="20190227 16:10:57.845"></status>
+</kw>
+<status status="PASS" endtime="20190227 16:10:58.122" critical="yes" starttime="20190227 16:10:57.842"></status>
+</test>
+<test id="s1-s2-t6" name="Collect Logs">
+<kw name="Collect Logs" library="Keywords">
+<kw name="Comment" library="BuiltIn">
+<doc>Displays the given messages in the log file as keyword arguments.</doc>
+<arguments>
+<arg>Get l2Log</arg>
+</arguments>
+<status status="PASS" endtime="20190227 16:10:58.133" starttime="20190227 16:10:58.131"></status>
+</kw>
+<kw name="Comment" library="BuiltIn">
+<doc>Displays the given messages in the log file as keyword arguments.</doc>
+<arguments>
+<arg>Get dbgLog</arg>
+</arguments>
+<status status="PASS" endtime="20190227 16:10:58.136" starttime="20190227 16:10:58.134"></status>
+</kw>
+<kw name="Comment" library="BuiltIn">
+<doc>Displays the given messages in the log file as keyword arguments.</doc>
+<arguments>
+<arg>Get systemLog</arg>
+</arguments>
+<status status="PASS" endtime="20190227 16:10:58.139" starttime="20190227 16:10:58.137"></status>
+</kw>
+<kw name="Get UELog" library="Keywords">
+<kw name="Open Connection And Log In" library="Keywords">
+<arguments>
+<arg>${UE}</arg>
+<arg>${UE_USER}</arg>
+<arg>${UE_PASS}</arg>
+</arguments>
+<kw name="Open Connection" library="SSHLibrary">
+<doc>Opens a new SSH connection to the given ``host`` and ``port``.</doc>
+<arguments>
+<arg>${arg1}</arg>
+</arguments>
+<status status="PASS" endtime="20190227 16:10:58.145" starttime="20190227 16:10:58.144"></status>
+</kw>
+<kw name="Login" library="SSHLibrary">
+<doc>Logs into the SSH server with the given ``username`` and ``password``.</doc>
+<arguments>
+<arg>${arg2}</arg>
+<arg>${arg3}</arg>
+</arguments>
+<msg timestamp="20190227 16:10:58.147" level="INFO">Logging into '172.27.22.201:22' as 'root'.</msg>
+<msg timestamp="20190227 16:10:59.406" level="INFO">Read output: Last login: Wed Feb 27 11:38:35 2019 from 172.24.41.87
+[root@localhost ~]#</msg>
+<status status="PASS" endtime="20190227 16:10:59.406" starttime="20190227 16:10:58.146"></status>
+</kw>
+<status status="PASS" endtime="20190227 16:10:59.407" starttime="20190227 16:10:58.142"></status>
+</kw>
+<kw name="Get File" library="SSHLibrary">
+<doc>Downloads file(s) from the remote machine to the local machine.</doc>
+<arguments>
+<arg>${L2_LOG_PATH5}</arg>
+<arg>${TARGET_PATH}</arg>
+</arguments>
+<msg timestamp="20190227 16:10:59.437" level="INFO">[chan 1] Opened sftp connection (server version 3)</msg>
+<msg timestamp="20190227 16:10:59.474" level="INFO">[chan 2] Opened sftp connection (server version 3)</msg>
+<msg timestamp="20190227 16:10:59.482" level="FAIL">IOError: [Errno 21] Is a directory: u'/home/edureka/kamala/Amarisoft_automation/Logs'</msg>
+<status status="FAIL" endtime="20190227 16:10:59.483" starttime="20190227 16:10:59.408"></status>
+</kw>
+<status status="FAIL" endtime="20190227 16:10:59.483" starttime="20190227 16:10:58.140"></status>
+</kw>
+<status status="FAIL" endtime="20190227 16:10:59.483" starttime="20190227 16:10:58.128"></status>
+</kw>
+<status status="FAIL" endtime="20190227 16:10:59.483" critical="yes" starttime="20190227 16:10:58.124">IOError: [Errno 21] Is a directory: u'/home/edureka/kamala/Amarisoft_automation/Logs'</status>
+</test>
+<doc>Check EPC Node reachability</doc>
+<status status="FAIL" endtime="20190227 16:10:59.485" starttime="20190227 16:10:24.602"></status>
+</suite>
+<status status="FAIL" endtime="20190227 16:10:59.490" starttime="20190227 16:10:24.567"></status>
+</suite>
+<statistics>
+<total>
+<stat fail="1" pass="5">Critical Tests</stat>
+<stat fail="1" pass="5">All Tests</stat>
+</total>
+<tag>
+</tag>
+<suite>
+<stat fail="1" id="s1" name="Logs &amp; Prereq" pass="5">Logs &amp; Prereq</stat>
+<stat fail="0" id="s1-s1" name="Logs" pass="0">Logs &amp; Prereq.Logs</stat>
+<stat fail="1" id="s1-s2" name="Prereq" pass="5">Logs &amp; Prereq.Prereq</stat>
+</suite>
+</statistics>
+<errors>
+<msg timestamp="20190227 16:10:57.002" level="ERROR">Fail to Run Scenario : Timeout exceeded.
+&lt;pexpect.pty_spawn.spawn object at 0x7f353123aad0&gt;
+command: /usr/bin/ssh
+args: [u'/usr/bin/ssh', u'-o', u'StrictHostKeyChecking=no', u'root@172.27.22.201']
+buffer (last 100 chars): '0 MHz dl_freq=2655.000 MHz ul_freq=2535.000 MHz (band 7) dl_ant=2 ul_ant=1\r\n(ue) Cell 0: SIB found\r\n'
+before (last 100 chars): '0 MHz dl_freq=2655.000 MHz ul_freq=2535.000 MHz (band 7) dl_ant=2 ul_ant=1\r\n(ue) Cell 0: SIB found\r\n'
+after: &lt;class 'pexpect.exceptions.TIMEOUT'&gt;
+match: None
+match_index: None
+exitstatus: None
+flag_eof: False
+pid: 6283
+child_fd: 10
+closed: False
+timeout: 30
+delimiter: &lt;class 'pexpect.exceptions.EOF'&gt;
+logfile: &lt;open file '../Logs/UE.log', mode 'wb' at 0x7f3531287780&gt;
+logfile_read: None
+logfile_send: None
+maxread: 2000
+ignorecase: False
+searchwindowsize: None
+delaybeforesend: 0.05
+delayafterclose: 0.1
+delayafterterminate: 0.1
+searcher: searcher_re:
+    0: re.compile("(ue) Cell 0: SIB found")</msg>
+<msg timestamp="20190227 16:10:57.713" level="ERROR">Error in checking UE Status :Error while connecting Nodejs server</msg>
+<msg timestamp="20190227 16:10:58.117" level="ERROR">Error in checking UE Status :Error while connecting Nodejs server</msg>
+</errors>
+</robot>

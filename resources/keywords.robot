@@ -2,6 +2,7 @@
 Library           ../Lib/UE.py
 Library           ../Lib/Epc.py
 Library           ../Lib/Enb.py
+variables         ../config/config.py
 
 *** Keywords ***
 Open Connection And Log In
@@ -37,23 +38,31 @@ Is ENB Reachable
     Execute Command And Verify Output
     Log out
 
+VS Clean
+    Open Connection And Log In    ${VS_IP}   ${VS_USER}    ${VS_PASS}
+    Execute Command    kill -9 iperf
+    Execute Command    kill -9 iperf
+    Log out
+
 EPC Node Bringup
     Clean_EPC
     EPC_Bringup
 
-ENB Bringup
-    Clean_ENB
-    ENB_Bringup
+UE Node Bringup
+    UE_Bringup
 
-Amarisoft UE Node Bringup
-    Open Connection And Log In    ${UE_IP}    ${UE_USER}    ${UE_PASS}
-    Execute Command    service lte stop
-    Execute Command     ./trx_sdr/sdr_util upgrade
+Power on UE
+    [Arguments]    ${No_UE}
+    power_onoff_ue    power_on    ${No_UE}
+
+Power off UE
+    [Arguments]    ${No_UE}
+    power_onoff_ue    power_off    ${No_UE}
 
 Copy Scenario File
     [Arguments]    ${scenario_file}
     Open Connection And Log In    ${UE_IP}    ${UE_USER}    ${UE_PASS}
-    SSHLibrary.Put File    ${Config_path}/${scenario_file}    ${UE_PATH}/${scenario_file}
+    SSHLibrary.Put File    ${CFG_PATH}/${scenario_file}    ${UE_PATH}/${scenario_file}
 
 Get l2Log
     Open Connection And Log In    ${Board}    ${BD_USER}    ${BD_PASS}

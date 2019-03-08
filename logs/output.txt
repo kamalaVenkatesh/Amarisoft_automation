@@ -1,0 +1,41 @@
+
+
+
+
+
+Inside OAM Configurations
+grep 'LTE_SIGLINK_SERVER_LIST' /root/rsys/config/configFile | awk '{print $2}'
+"172.27.1.207"
+
+Inside OAM
+"172.27.1.207"
+
+sed -i 's/"172.27.1.207"/"172.27.1.207"/g' /root/rsys/config/configFile
+
+
+
+
+
+
+No keyword with name 'Stop the Scenario' found.
+
+
+No keyword with name 'Stop the Scenario' found.
+
+Check EPC Node reachability
+
+
+
+
+Critical Tests
+All Tests
+
+
+
+
+Prereq
+
+
+
+
+

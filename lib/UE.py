@@ -1,5 +1,31 @@
+import imports
+
+def UE_Bringup():
+    prompt = ['\w+\@\w+.*?\#', '\w+\@\w+.*?\$', '\#', '\$', '#', pexpect.EOF]
+    fout = open('../Logs/UE.log', 'wb')
+    try:
+        #logging into ue
+        logger.info("let login into UE")
+        child = pexpect.spawn('ssh -o StrictHostKeyChecking=no root@' + ue_ip,
+                                                        logfile=fout)
+        child.expect('(?i)password:', timeout=25)
+        child.sendline(ue_passwd)
+        child.sendline('pkill -9 lteue-avx2*')
+        child.expect(prompt,timeout=30)
+        child.sendline('service lte stop')
+        child.expect(prompt,timeout=30)
+        child.sendline('service firewalld stop')
+        child.expect(prompt,timeout=30)
+        child.sendline('service httpd start')
+        child.expect(prompt,timeout=30)
+        child.sendline('cd /root/trx_sdr/')
+        child.expect(prompt,timeout=30)
+        child.sendline('./sdr_util upgrade')
+        child.expect(prompt,timeout=30)
+    except Exception as err:
+        logger.error('Fail to Bringup UE : ' + str(err))
+
 def Run_Scenario(scenario):
-    global NO_UE
     prompt = ['\w+\@\w+.*?\#', '\w+\@\w+.*?\$', '\#', '\$', '#', pexpect.EOF]
     fout = open('../Logs/UE.log', 'wb')
     try:
@@ -10,14 +36,9 @@ def Run_Scenario(scenario):
         child.expect('(?i)password:', timeout=25)
         child.sendline(ue_passwd)
         logger.debug('ue login successful')
-        #pkill the already running scenario if exist
-        #child.sendline("ps -eaf | grep lteue-avx2 | head -n 1 | awk \'{print $2}\'"
-        #res = child.expect('^[0-9]+$', timeout=2)
-        #if res == 0:
-        #    procees_id = child.read()
-        #    child.sendline('pkill -9' + process_id)
+        UE_Bringup()
         #Run scenario
-        child.sendline('cd '+ ueconfig.UE_PATH)
+        child.sendline('cd '+ config.UE_PATH)
         child.expect(prompt,timeout=30)
         child.sendline('./lteue config/'+ scenario+ '> run_scenario.log 2>&1 &')
         child.expect(prompt,timeout=30)
@@ -26,6 +47,40 @@ def Run_Scenario(scenario):
         logger.debug("Scenario started successfully with SIB Found")
     except Exception as err:
         logger.error('Fail to Run Scenario : ' + str(err))
+
+def power_onoff_ue(msg,ue):
+    prompt = ['\w+\@\w+.*?\#', '\w+\@\w+.*?\$', '\#', '\$', '#', pexpect.EOF]
+    fout = open('../Logs/UE.log', 'wb')
+    try:
+        child = pexpect.spawn('ssh -o StrictHostKeyChecking=no root@' + ue_ip,
+                                                logfile=fout)
+        child.expect('(?i)password:', timeout=25)
+        child.sendline(ue_passwd)
+        child.expect(prompt,timeout=30)
+        for i in range(1,ue): 
+            cmd= "/root/ue/doc/ws.js "+ config.UE_IP+":9002 '{\"message\": \""+msg+"\",\"ue_id\":"+i+"}'"
+            child.sendline(cmd)
+            child.expect(prompt,timeout=30)
+    except Exception as err:
+        logger.error('Fail to Run Scenario : ' + str(err))
+
+def UE_Teardown():
+    prompt = ['\w+\@\w+.*?\#', '\w+\@\w+.*?\$', '\#', '\$', '#', pexpect.EOF]
+    fout = open('../Logs/UE.log', 'wb')
+    try:
+        logger.info("let login into UE")
+        child = pexpect.spawn('ssh -o StrictHostKeyChecking=no root@' + ue_ip,
+                                logfile=fout)
+        child.expect('(?i)password:', timeout=25)
+        child.sendline(ue_passwd)
+        child.sendline('pkill -9 lteue-avx2')
+        #collect logs
+        child.expect(prompt,timeout=30)
+        child.sendline('rm -r /tmp/ue0.log')
+        child.expect(prompt,timeout=30)
+    except Exception as err:
+        logger.error('Error while UE Teardown: ' + str(err))
+
 
 def Check_Ue_Status(ue,status):
     try:
@@ -36,7 +91,7 @@ def Check_Ue_Status(ue,status):
                 res=1
             time.sleep(period)
         if res == 0:
-            raise Exception("Timeout : UE Not " + status)
+            raise Exception("Timeout :"+ ue + " UE Not " + status)
         ssh.close()
     except Exception as err:
         logger.error('Error in checking UE Status :' + str(err))
@@ -44,6 +99,7 @@ def Check_Ue_Status(ue,status):
 
 def Check_Traffic(tr_type,tr_proto):
     try:
+        VS_Prereq()
         if tr_type == "uplink":
             check_uplink(tr_proto,ue)
         elif tr_type == "downlink":
@@ -55,10 +111,10 @@ def UE_Monitor(ue,state):
 
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(ueconfig.UE_IP, username=ueconfig.UE_USER, password=ueconfig.UE_PASS)
+    ssh.connect(config.UE_IP, username=config.UE_USER, password=config.UE_PASS)
     logger.info("inside UE_Monitor")
 
-    cmd= "/root/ue/doc/ws.js "  + ueconfig.UE_IP+":9002 '{\"message\": \"ue_get\"}'"
+    cmd= "/root/ue/doc/ws.js "  + config.UE_IP+":9002 '{\"message\": \"ue_get\"}'"
     ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(cmd)
 
     if ssh_stderr.read() == "":
@@ -76,16 +132,14 @@ def UE_Monitor(ue,state):
         obj = json.loads(outfile)
         
         #get the status
-        res=UE_Stats(obj,state)
+        res=UE_Stats(obj,ue,state)
         logger.info("after UE_Stats")
         logger.info(res)
-        
-        if res == ue: return ue
-        return 0
+        return res
     else:
         raise RunTimeError("Error while connecting Nodejs server" + ssh_stderr.read())
 
-def UE_Stats(obj,status):
+def UE_Stats(obj,ue,status):
     logger.info("I am here to collect UE_Stats")
     n=0
     for i in obj:
@@ -95,7 +149,10 @@ def UE_Stats(obj,status):
                     if k[l] == status:
                         logger.info('equal')
                         n=n+1
-    return n
+    if n >= ue:
+        return True
+    else:
+        return False
 
 
 def remove_lines(fname,start,count):
@@ -112,7 +169,7 @@ def check_uplink(tr_proto,ue):
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     
     #server
-    ssh.connect(ueconfig.VS_IP, username=ueconfig.VS_USER, password=ueconfig.VS_PASS)
+    ssh.connect(config.VS_IP, username=config.VS_USER, password=config.VS_PASS)
     cmd="/root/IPERF_SIM/iperf_server_udp.sh"
     ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(cmd)
     if ssh_stderr != "":
@@ -120,7 +177,7 @@ def check_uplink(tr_proto,ue):
     ssh.close()
     
     #client
-    ssh.connect(ueconfig.UE_IP, username=ueconfig.UE_USER, password=ueconfig.UE_PASS)
+    ssh.connect(config.UE_IP, username=config.UE_USER, password=config.UE_PASS)
     cmd="/root/IPERF_SCRIPT/iperf_client_udp_1.sh"
     ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(cmd)
     if ssh_stderr != "":
@@ -132,7 +189,7 @@ def check_downlink(tr_proto,ue):
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     
     #server
-    ssh.connect(ueconfig.UE_IP, username=ueconfig.UE_USER, password=ueconfig.UE_PASS)
+    ssh.connect(config.UE_IP, username=config.UE_USER, password=config.UE_PASS)
     cmd="/root/IPERF_SIM/iperf_server_1Ues_udp.sh"
     ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(cmd)
     if ssh_stderr != "":
@@ -140,13 +197,27 @@ def check_downlink(tr_proto,ue):
     ssh.close()
     
     #client
-    ssh.connect(ueconfig.VS_IP, username=ueconfig.VS_USER, password=ueconfig.VS_PASS)
+    ssh.connect(config.VS_IP, username=config.VS_USER, password=config.VS_PASS)
     cmd="/root/IPERF_SCRIPT/iperf_client_1_ue_udp.sh"
     ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(cmd)
     if ssh_stderr != "":
                 raise Exception("Error in client for downlink traffic")
     ssh.close()
 
-
-
+def VS_Prereq():
+    prompt = ['\w+\@\w+.*?\#', '\w+\@\w+.*?\$', '\#', '\$', '#', pexpect.EOF]
+    fout = open('../Logs/VS.log', 'wb')
+    try:
+        child = pexpect.spawn('ssh -o StrictHostKeyChecking=no root@' + config.VS_IP,
+            logfile=fout)
+        child.expect('(?i)password:', timeout=25)
+        child.sendline(config.VS_PASS)
+        child.sendline('route add -net'+ config.vs_subnet +'gw'+ config.pgw)
+        child.expect(prompt,timeout=30)
+        child.sendline('pkill -9 iperf')
+        child.expect(prompt,timeout=30)
+        child.sendline('pkill -9 iperf')
+        child.expect(prompt,timeout=30)
+    except Exception as err:
+        logger.error('Error in Video server prereqisites: ' + str(err))
 

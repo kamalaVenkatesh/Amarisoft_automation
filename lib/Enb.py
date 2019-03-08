@@ -1,47 +1,71 @@
+import paramiko
+import fileinput
+import os
+import json
+import sys
+import time
+import pexpect
+from robot.api import logger
+from robot.libraries.BuiltIn import BuiltIn
+sys.path.append('../config/')
+import config
 #-----ENB Related code-------------
 
-def ENB_Bringup():
+def ENB_Bringup(OAM,Cell):
     prompt = ['# ', pexpect.EOF]
     fout = open('../Logs/Board.log', 'wb')
     try:
         #logging into board
-        child = pexpect.spawn('ssh -o StrictHostKeyChecking=no root@' + enbconfig.ENB_IP,
+        child = pexpect.spawn('ssh -o StrictHostKeyChecking=no root@' + config.ENB_IP,
                 logfile=fout)  
         child.expect('(?i)password:', timeout=25)
-        child.sendline(enbconfig.ENB_PASS)
+        child.sendline(config.ENB_PASS)
         child.expect(prompt, timeout=30)
+        #clean_Board()
         logger.debug('Board login successful')
         child.sendline('rm -r rsys')
         child.expect(prompt, timeout=30)
         logger.debug('deleted existing binaries on board')
         #copying binaries to the board
-        cmd = "scp -r " + enbconfig.COPY_RSYS_PATH + " /root/"
+        cmd = "scp -r " + config.COPY_RSYS_PATH + " /root/"
         child.sendline(cmd)
         child.expect('(?i)password:',timeout=30)
-        child.sendline(epcconfig.EPC_PASS)
+        child.sendline(config.EPC_PASS)
         child.expect(prompt, timeout=30)
         logger.debug('copied rsys')
         child.sendline('umount /mnt/firmware')
         child.expect(prompt, timeout=30)
         child.sendline('mount -t vfat /dev/mmcblk0p1 /mnt/firmware/')
         child.expect(prompt, timeout=30)
-        child.sendline('cp -f /root/rsys/bin/mdm2_00.mbn /mnt/firmware')
+        child.sendline('cp -f '+config.CLI_PATH+ '/mdm2_00.mbn /mnt/firmware')
         child.expect(prompt, timeout=30)
         #configuration file changes
-        
-        child.sendline('exit')
+        #child.sendline('cd '+ config.SCRIPT_PATH)
+        #child.expect(prompt, timeout=30)
+        #cmd = "sed -i 's/"+ current_ip.rstrip() +"/\""+ config.EPC_IP+"\"/g' " + config.ENB_CONFIG_FILE
+        #child.sendline("sed -i 's/WR_TAG_NOS_OF_CELLS=.*/WR_TAG_NOS_OF_CELLS="+cell+"/' wr_cfg.txt")
+        #child.expect('# ', timeout=30)
+        #child.sendline("sed -i 's/=.*/="+cell+"/' wr_cfg.txt")
+        #child.expect('# ', timeout=30)
+        #child.sendline("sed -i 's/=.*/="+cell+"/' wr_cfg.txt")
+        #child.expect('# ', timeout=30)
+        #child.sendline("sed -i 's/=.*/="+cell+"/' wr_cfg.txt")
+        #child.expect('# ', timeout=30)
+        #child.sendline('sync')
+        #child.expect('# ', timeout=30)
+        #child.sendline('reboot')
         #OAM related Changes
-        if enbconfig.OAM == "YES":
+        if OAM == "OAM":
             logger.info('OAM configuration')
             OAM_Configurations()
         #logging into board
-        child = pexpect.spawn('ssh -o StrictHostKeyChecking=no root@' + enbconfig.ENB_IP,
+        child = pexpect.spawn('ssh -o StrictHostKeyChecking=no root@' + config.ENB_IP,
                                         logfile=fout)
         child.expect('(?i)password:', timeout=25)
-        child.sendline(enbconfig.ENB_PASS)
+        child.sendline(config.ENB_PASS)
         child.expect(prompt, timeout=30)
         #Bringup Board
-        child.sendline('cd ' + enbconfig.SCRIPT_PATH)
+        child.sendline('cd ' + config.SCRIPT_PATH)
         child.expect(prompt, timeout=30)
         child.sendline('./install.sh')
         child.expect(prompt, timeout=30)
@@ -52,7 +76,7 @@ def ENB_Bringup():
         child.expect("address", timeout=50)
         logger.debug("EPC To ENB Connection is successfull")
         #Cell related changes
-        Cell_Configuration()
+        Cell_Configuration(Cell)
         #child.sendline('tail -f TeNB_console.log')
         #ret = child.expect("THROUGHPUT DATA",timeout=60)
         #if ret == 0:
@@ -66,18 +90,18 @@ def OAM_Configurations():
     fout = open('../Logs/Board.log', 'a')
     logger.info("Inside OAM Configurations")
     try:
-        child = pexpect.spawn('ssh -o StrictHostKeyChecking=no root@' + enbconfig.ENB_IP,
+        child = pexpect.spawn('ssh -o StrictHostKeyChecking=no root@' + config.ENB_IP,
                                 logfile=fout)  
         child.expect('(?i)password:', timeout=25)
-        child.sendline(enbconfig.ENB_PASS)
+        child.sendline(config.ENB_PASS)
         child.expect('# ', timeout=30)
-        cmd = "grep 'LTE_SIGLINK_SERVER_LIST' "+ enbconfig.CONFIG_FILE + " | awk '{print $2}'"
+        cmd = "grep 'LTE_SIGLINK_SERVER_LIST' "+ config.ENB_CONFIG_FILE + " | awk '{print $2}'"
         child.sendline(cmd)
         child.readline()
         current_ip = child.readline()
         logger.info(current_ip)
-        if current_ip != epcconfig.EPC_IP:
-            cmd = "sed -i 's/"+ current_ip.rstrip() +"/\""+ epcconfig.EPC_IP+"\"/g' " + enbconfig.CONFIG_FILE
+        if current_ip != config.EPC_IP:
+            cmd = "sed -i 's/"+ current_ip.rstrip() +"/\""+ config.EPC_IP+"\"/g' " + config.ENB_CONFIG_FILE
             child.sendline(cmd)
             child.expect('# ', timeout=30)
             child.sendline('sync')
@@ -87,19 +111,19 @@ def OAM_Configurations():
     except Exception as err:
             logger.error('Error in OAM Configurations' + str(err))
 
-def Cell_Configuration():
+def Cell_Configuration(CELL):
     fout = open('../Logs/Board.log', 'a')
     try:
         logger.info('cell configurations')
         #CELL configuration
-        child = pexpect.spawn('ssh -o StrictHostKeyChecking=no root@' + enbconfig.ENB_IP,
+        child = pexpect.spawn('ssh -o StrictHostKeyChecking=no root@' + config.ENB_IP,
                 logfile=fout)  
         child.expect('(?i)password', timeout=10)
-        child.sendline(enbconfig.ENB_PASS)
+        child.sendline(config.ENB_PASS)
         child.expect('# ',timeout=30)
-        child.sendline('cd ' + enbconfig.CLI_PATH)
+        child.sendline('cd ' + config.CLI_PATH)
         child.expect('# ',timeout=30)
-        if enbconfig.CELL == "Single_Cell":
+        if CELL == "1":
             child.sendline('./cli')
             child.expect("fap",timeout=30)
             child.sendline('tr69.addobject Device.Services.FAPService.1.CellConfig.LTE.EPC.PLMNList.')
@@ -112,7 +136,7 @@ def Cell_Configuration():
             child.expect("fap", timeout=30)
             child.sendline('tr69.set Device.Services.FAPService.1.FAPControl.LTE.AdminState 1')
             child.expect("fap", timeout=30)
-        elif enbconfig.CELL == "CA":
+        elif CELL == "2":
             child.sendline('./cli')
             child.expect("fap",timeout=30)
             child.sendline('tr69.addobject Device.Services.FAPService.1.CellConfig.LTE.EPC.PLMNList.')
@@ -145,12 +169,12 @@ def Clean_ENB():
     fout = open('../Logs/Board.log', 'a')
     try:
         logger.debug('cleaning Board configurations')
-        child = pexpect.spawn('ssh -o StrictHostKeyChecking=no root@' + enbconfig.ENB_IP,
+        child = pexpect.spawn('ssh -o StrictHostKeyChecking=no root@' + config.ENB_IP,
                             logfile=fout)
         child.expect('(?i)password', timeout=10)
-        child.sendline(enbconfig.ENB_PASS)
+        child.sendline(config.ENB_PASS)
         child.expect('# ',timeout=30)
-        child.sendline('cd ' + enbconfig.SCRIPT_PATH)
+        child.sendline('cd ' + config.SCRIPT_PATH)
         child.expect('# ', timeout=30)
         child.sendline('./stop_TeNB.sh')
         child.expect('# ', timeout=30)
@@ -160,4 +184,21 @@ def Clean_ENB():
         time.sleep(30)
     except Exception as err:
         logger.error('Error in Cell Configurations' + str(err))
+
+
+def ENB_Teardown():
+    try:
+        child = pexpect.spawn('ssh -o StrictHostKeyChecking=no root@' + config.ENB_IP,
+                                logfile=fout)
+        child.expect('(?i)password:', timeout=25)
+        child.sendline(config.ENB_PASS)
+        child.sendline('cd ' + config.SCRIPT_PATH)
+        child.expect(prompt, timeout=30)
+        child.sendline('./stop_TeNB.sh')
+        child.expect(prompt, timeout=30)
+        #collect logs 
+        child.sendline('rm -r /rsys/setup')
+        child.expect(prompt, timeout=30)
+    except Exception as err:
+        logger.error('Error while ENB Teardown' + str(err))
 

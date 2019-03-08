@@ -1,6 +1,0 @@
-[AUTOMATION]
-#logging output, Options: FILE or CONSOLE or FILE_CONSOLE
-AUTOLogging					=FILE_CONSOLE
-#logging.CRITICAL 50, ERROR 40, WARNING 30, INFO 20 & DEBUG 10
-LOG_LEVEL_FILE              =10
-LOG_LEVEL_CONSOLE           =20

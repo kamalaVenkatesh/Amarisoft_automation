@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot rpa="false" generated="20190308 12:04:14.014" generator="Robot 3.1.1 (Python 2.7.14 on linux2)">
+<suite source="/home/edureka/kamala/Amarisoft_automation/TestCases/main.robot" id="s1" name="Main">
+<test id="s1-t1" name="64 ue attach detach">
+<status status="FAIL" endtime="20190308 12:04:14.276" critical="yes" starttime="20190308 12:04:14.275">Test case contains no keywords.</status>
+</test>
+<doc>Check EPC Node reachability</doc>
+<status status="FAIL" endtime="20190308 12:04:14.277" starttime="20190308 12:04:14.017"></status>
+</suite>
+<statistics>
+<total>
+<stat fail="1" pass="0">Critical Tests</stat>
+<stat fail="1" pass="0">All Tests</stat>
+</total>
+<tag>
+</tag>
+<suite>
+<stat fail="1" id="s1" name="Main" pass="0">Main</stat>
+</suite>
+</statistics>
+<errors>
+<msg timestamp="20190308 12:04:14.273" level="ERROR">Error in file '/home/edureka/kamala/Amarisoft_automation/TestCases/main.robot': Resource file '/home/edureka/kamala/Amarisoft_automation/TestCases/testcase001.robot' cannot contain tests or tasks.</msg>
+</errors>
+</robot>

@@ -1,0 +1,13 @@
+root@172.27.22.201's password: toor
+/root/ue/lteue /root/ue/config/64_ue.cfg
+
+Warning: No xauth data; using fake authentication data for X11 forwarding.
+Last login: Tue Mar  5 06:23:22 2019 from 172.24.40.190
+/root/ue/lteue /root/ue/config/64_ue.cfg
+]0;root@localhost:~[root@localhost ~]# /root/ue/lteue /root/ue/config/64_ue.cfg
+LTE UE version 2018-10-18, Copyright (C) 2012-2018 Amarisoft
+This software is licensed to Radisys India Private Limited.
+Support and software update available until 2019-12-14.
+
+Can't create web socket: Address already in use
+]0;root@localhost:~[root@localhost ~]# 
