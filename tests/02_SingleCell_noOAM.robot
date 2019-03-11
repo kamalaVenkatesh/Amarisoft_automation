@@ -8,6 +8,13 @@ Resource          Keywords.robot
 Resource          variables.robot
 
 *** Test Cases ***
+Setup Bringup
+    EPC Node Bringup
+    UE Node Bringup
+    ENB Node Bringup with Single Cell and without OAM
+
+
+
 64 ue attach detach
     Log done
 

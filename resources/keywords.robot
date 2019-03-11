@@ -59,10 +59,28 @@ Power off UE
     [Arguments]    ${No_UE}
     power_onoff_ue    power_off    ${No_UE}
 
-Copy Scenario File
+Check Setup Reachability
+    Is EPC Reachable
+    Is ENB Reachable
+    Is UE Reachable
+
+ENB Node Bringup with Single Cell and with OAM
+    ENB_Bringup    1    1
+
+ENB Node Bringup with Single Cell and without OAM
+    ENB_Bringup    0    1
+
+ENB Node Bringup with CA and with OAM
+    ENB_Bringup    1    2
+
+ENB Node Bringup with CA and without OAM
+    ENB_Bringup    0    2
+
+Run scenario with   
     [Arguments]    ${scenario_file}
     Open Connection And Log In    ${UE_IP}    ${UE_USER}    ${UE_PASS}
     SSHLibrary.Put File    ${CFG_PATH}/${scenario_file}    ${UE_PATH}/${scenario_file}
+    Run_scenario   ${scenario_file} 
 
 Get l2Log
     Open Connection And Log In    ${Board}    ${BD_USER}    ${BD_PASS}
@@ -94,4 +112,10 @@ Collect Logs
     Get dbgLog
     Get systemLog
     Get UELog
+
+Teardown setup
+    Collect Logs
+    EPC_Teardown
+    ENB_Teardown
+    UE_Teardown
 

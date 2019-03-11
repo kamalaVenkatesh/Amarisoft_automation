@@ -23,6 +23,8 @@ def EPC_Bringup():
         child.expect(prompt,timeout=30)
         cmd = "sed -i 's/MNC=.*MNC=" + config.MNC + "/' " + config.EPC_CONFIG_FILE
         child.sendline(cmd)
+        child.sendline('sed -n /'s/PGW-IP=\(.*\)/\1/p/' <' + config.EPC_CONFIG_FILE)
+        config.pgw = child.readline().rstrip()
         child.expect(prompt,timeout=30)
         #Restartcne
         child.sendline('./restart_cne.sh 1 > restartcne.log 2>&1 &')
