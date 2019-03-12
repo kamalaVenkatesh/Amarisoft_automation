@@ -1,26 +1,39 @@
-import imports
+import paramiko
+import fileinput
+import os
+import json
+import sys
+import time
+import pexpect
+from robot.api import logger
+from robot.libraries.BuiltIn import BuiltIn
+sys.path.append('../config/')
+import config
 
 def UE_Bringup():
-    prompt = ['\w+\@\w+.*?\#', '\w+\@\w+.*?\$', '\#', '\$', '#', pexpect.EOF]
+    prompt = ['# ', pexpect.EOF]
     fout = open('../Logs/UE.log', 'wb')
     try:
         #logging into ue
         logger.info("let login into UE")
-        child = pexpect.spawn('ssh -o StrictHostKeyChecking=no root@' + ue_ip,
+        child = pexpect.spawn('ssh -o StrictHostKeyChecking=no root@' + config.UE_IP,
                                                         logfile=fout)
-        child.expect('(?i)password:', timeout=25)
-        child.sendline(ue_passwd)
-        child.sendline('pkill -9 lteue-avx2*')
+        child.expect('(?i)password:', timeout=30)
+        child.sendline(config.UE_PASS)
+        child.expect('# ',timeout=30)
+        child.sendline('echo "djhcdkjshk" >> abcd.txt')
+        child.expect('# ',timeout=30)
+        child.sendline("pkill -9 lteue-avx2*")
+        child.expect("# ",timeout=30)
+        child.sendline("service lte stop")
+        child.expect("# ",timeout=30)
+        child.sendline("service firewalld stop")
+        child.expect("# ",timeout=30)
+        child.sendline("service httpd start")
         child.expect(prompt,timeout=30)
-        child.sendline('service lte stop')
+        child.sendline("cd /root/trx_sdr")
         child.expect(prompt,timeout=30)
-        child.sendline('service firewalld stop')
-        child.expect(prompt,timeout=30)
-        child.sendline('service httpd start')
-        child.expect(prompt,timeout=30)
-        child.sendline('cd /root/trx_sdr/')
-        child.expect(prompt,timeout=30)
-        child.sendline('./sdr_util upgrade')
+        child.sendline("./sdr_util upgrade ")
         child.expect(prompt,timeout=30)
     except Exception as err:
         logger.error('Fail to Bringup UE : ' + str(err))

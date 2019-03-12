@@ -11,7 +11,7 @@ sys.path.append('../config/')
 import config
 #-----ENB Related code-------------
 
-def ENB_Bringup(OAM,Cell):
+def ENB_Bringup(Cell,OAM):
     prompt = ['# ', pexpect.EOF]
     fout = open('../Logs/Board.log', 'wb')
     try:
@@ -22,17 +22,17 @@ def ENB_Bringup(OAM,Cell):
         child.sendline(config.ENB_PASS)
         child.expect(prompt, timeout=30)
         #clean_Board()
-        logger.debug('Board login successful')
+        logger.info('Board login successful')
         child.sendline('rm -r rsys')
         child.expect(prompt, timeout=30)
-        logger.debug('deleted existing binaries on board')
+        logger.info('deleted existing binaries on board')
         #copying binaries to the board
         cmd = "scp -r " + config.COPY_RSYS_PATH + " /root/"
         child.sendline(cmd)
         child.expect('(?i)password:',timeout=30)
         child.sendline(config.EPC_PASS)
         child.expect(prompt, timeout=30)
-        logger.debug('copied rsys')
+        logger.info('copied rsys')
         child.sendline('umount /mnt/firmware')
         child.expect(prompt, timeout=30)
         child.sendline('mount -t vfat /dev/mmcblk0p1 /mnt/firmware/')
@@ -40,26 +40,39 @@ def ENB_Bringup(OAM,Cell):
         child.sendline('cp -f '+config.CLI_PATH+ '/mdm2_00.mbn /mnt/firmware')
         child.expect(prompt, timeout=30)
         #OAM related Changes
+        logger.info(OAM)
+        logger.info(Cell)
         if OAM == "OAM":
             logger.info('OAM configuration')
             OAM_Configurations(Cell)
         else:
+            logger.info("else part")
             #wr_cfg configuration file changes
             child.sendline('cd '+ config.SCRIPT_PATH)
             child.expect(prompt, timeout=30)
-            child.sendline("sed -i 's/WR_TAG_NOS_OF_CELLS .*/WR_TAG_NOS_OF_CELLS "+cell+"/' wr_cfg.txt")
-            child.expect('# ', timeout=30)
-            child.sendline("sed -i 's/WR_TAG_ENABLE_CA .*/WR_TAG_ENABLE_CA "+cell+"/' wr_cfg.txt")
-            child.expect('# ', timeout=30)
-            child.sendline("sed -i 's/WR_TAG_MME_INFO_IP .*/WR_TAG_MME_INFO_IP "++config.EPC_IP++"/' wr_cfg.txt")
-            child.expect('# ', timeout=30)
+            if Cell == "Single_Cell":
+                logger.info("under single cell")
+                child.sendline("sed -i 's/WR_TAG_NOS_OF_CELLS .*/WR_TAG_NOS_OF_CELLS 1/' wr_cfg.txt")
+                child.expect(prompt, timeout=30)
+                child.sendline("sed -i 's/WR_TAG_ENABLE_CA .*/WR_TAG_ENABLE_CA 0/' wr_cfg.txt")
+                child.expect(prompt, timeout=30)
+            elif Cell == "CA":
+                logger.info("under ca")
+                child.sendline("sed -i 's/WR_TAG_NOS_OF_CELLS .*/WR_TAG_NOS_OF_CELLS 2/' wr_cfg.txt")
+                child.expect(prompt, timeout=30)
+                child.sendline("sed -i 's/WR_TAG_ENABLE_CA .*/WR_TAG_ENABLE_CA 1' wr_cfg.txt")
+                child.expect(prompt, timeout=30)
+            logger.info('here')
+            child.sendline("sed -i 's/WR_TAG_MME_INFO_IP .*/WR_TAG_MME_INFO_IP "+config.EPC_IP+"/' wr_cfg.txt")
+            child.expect(prompt, timeout=30)
             child.sendline("sed -i 's/WR_TAG_ENB_IP_ADDR .*/WR_TAG_ENB_IP_ADDR "+config.ENB_IP+"/' wr_cfg.txt")
-            child.expect('# ', timeout=30)
+            child.expect(prompt, timeout=30)
             child.sendline("sed -i 's/WR_TAG_SCTP_IP_ADDR .*/WR_TAG_SCTP_IP_ADDR "+config.ENB_IP+"/' wr_cfg.txt")
-            child.expect('# ', timeout=30)
+            child.expect(prompt, timeout=30)
             child.sendline('sync')
-            child.expect('# ', timeout=30)
+            child.expect(prompt, timeout=30)
             child.sendline('reboot')
+            time.sleep(30)
         #logging into board
         child = pexpect.spawn('ssh -o StrictHostKeyChecking=no root@' + config.ENB_IP,
                                         logfile=fout)
@@ -89,6 +102,7 @@ def ENB_Bringup(OAM,Cell):
         logger.error('Error in Bringing up Board' + str(err))
 
 def OAM_Configurations(Cell):
+    prompt = ['# ', pexpect.EOF]
     fout = open('../Logs/Board.log', 'a')
     logger.info("Inside OAM Configurations")
     try:
@@ -106,31 +120,28 @@ def OAM_Configurations(Cell):
             cmd = "sed -i 's/"+ current_ip.rstrip() +"/\""+ config.EPC_IP+"\"/g' " + config.ENB_CONFIG_FILE
             child.sendline(cmd)
             child.expect('# ', timeout=30)
-        child.sendline('cd '+ config.CONFIG_PATH)
-        child.expect(prompt, timeout=30)
-        child.sendline("sed -i 's/OAM_NUM_CELL_ENTRIES .*/OAM_NUM_CELL_ENTRIES "+Cell+"/' configFile")
-        child.expect('# ', timeout=30)
-        child.sendline("grep LTE_X_RADISYS_NUM_OF_CELLS configFile | wc -l")
-        count = child.readline().rstrip()
-        if Cell == 1:
-            child.sendline("sed -i 's/LTE_X_RADISYS_CA_ENABLE .*/LTE_X_RADISYS_CA_ENABLE 0/' configFile")
+        if Cell == "Single_Cell":
+            child.sendline("sed -i 's/OAM_NUM_CELL_ENTRIES .*/OAM_NUM_CELL_ENTRIES 1/' " + config.ENB_CONFIG_FILE)
             child.expect(prompt, timeout=30)
-            child.sendline("sed -i 's/LTE_X_RADISYS_NUM_OF_CELLS .*/LTE_X_RADISYS_NUM_OF_CELLS 1/' configFile")
+            child.sendline("sed -i 's/LTE_X_RADISYS_CA_ENABLE .*/LTE_X_RADISYS_CA_ENABLE 0/' " +config.ENB_CONFIG_FILE)
             child.expect(prompt, timeout=30)
-            elif count == 2:
-                child.sendline("sed -e '/LTE_X_RADISYS_NUM_OF_CELLS 2 FAP.0.FAP_LTE.1/ s/^#*/#/' -i configFile")
+            child.sendline("sed -i '/LTE_X_RADISYS_NUM_OF_CELLS/d' " + config.ENB_CONFIG_FILE)
+            child.expect(prompt, timeout=30)
+            child.sendline('echo "LTE_X_RADISYS_NUM_OF_CELLS 1 FAP.0.FAP_LTE.0" >> ' +config.ENB_CONFIG_FILE)
+            child.expect(prompt, timeout=30)
 
-        elif cell == 2:
-            child.sendline("sed -i 's/LTE_X_RADISYS_CA_ENABLE .*/LTE_X_RADISYS_CA_ENABLE 1/' configFile")
+        elif Cell == "CA":
+            child.sendline("sed -i 's/OAM_NUM_CELL_ENTRIES .*/OAM_NUM_CELL_ENTRIES 2/' " +config.ENB_CONFIG_FILE)
+            child.expect('# ', timeout=30)
+            child.sendline("sed -i 's/LTE_X_RADISYS_CA_ENABLE .*/LTE_X_RADISYS_CA_ENABLE 1/' "+config.ENB_CONFIG_FILE)
             child.expect(prompt, timeout=30)
-            child.sendline("sed -i 's/LTE_X_RADISYS_NUM_OF_CELLS .*/LTE_X_RADISYS_NUM_OF_CELLS 2/' configFile")
+            child.sendline("sed -i '/LTE_X_RADISYS_NUM_OF_CELLS/d' " + config.ENB_CONFIG_FILE)
             child.expect(prompt, timeout=30)
-            if count == 1:
-                child.sendline('echo "LTE_X_RADISYS_NUM_OF_CELLS 2 FAP.0.FAP_LTE.1" >> configFile')
-            elif count == 2:
-                child.sendline('sed -i \'/LTE_X_RADISYS_NUM_OF_CELLS 2 FAP.0.FAP_LTE.1/s/^#//g\' configFile')
+            child.sendline('echo "LTE_X_RADISYS_NUM_OF_CELLS 1 FAP.0.FAP_LTE.0" >> ' +config.ENB_CONFIG_FILE)
+            child.expect(prompt, timeout=30)
+            child.sendline('echo "LTE_X_RADISYS_NUM_OF_CELLS 2 FAP.0.FAP_LTE.1" >> ' +config.ENB_CONFIG_FILE)
+            child.expect('# ', timeout=30)
 
-        child.expect('# ', timeout=30)
         child.sendline('sync')
         child.expect('# ', timeout=30)
         child.sendline('reboot')
@@ -150,7 +161,7 @@ def Cell_Configuration(CELL):
         child.expect('# ',timeout=30)
         child.sendline('cd ' + config.CLI_PATH)
         child.expect('# ',timeout=30)
-        if CELL == "1":
+        if CELL == "Single_Cell":
             child.sendline('./cli')
             child.expect("fap",timeout=30)
             child.sendline('tr69.addobject Device.Services.FAPService.1.CellConfig.LTE.EPC.PLMNList.')
@@ -163,7 +174,7 @@ def Cell_Configuration(CELL):
             child.expect("fap", timeout=30)
             child.sendline('tr69.set Device.Services.FAPService.1.FAPControl.LTE.AdminState 1')
             child.expect("fap", timeout=30)
-        elif CELL == "2":
+        elif CELL == "CA":
             child.sendline('./cli')
             child.expect("fap",timeout=30)
             child.sendline('tr69.addobject Device.Services.FAPService.1.CellConfig.LTE.EPC.PLMNList.')
@@ -214,6 +225,8 @@ def Clean_ENB():
 
 
 def ENB_Teardown():
+    prompt = ['# ', pexpect.EOF]
+    fout = open('../Logs/Board.log', 'a')
     try:
         child = pexpect.spawn('ssh -o StrictHostKeyChecking=no root@' + config.ENB_IP,
                                 logfile=fout)

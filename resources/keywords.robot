@@ -1,7 +1,7 @@
 *** Settings  ***********
-Library           ../Lib/UE.py
-Library           ../Lib/Epc.py
-Library           ../Lib/Enb.py
+Library           ../lib/UE.py
+Library           ../lib/Epc.py
+Library           ../lib/Enb.py
 variables         ../config/config.py
 
 *** Keywords ***
@@ -65,7 +65,8 @@ Check Setup Reachability
     Is UE Reachable
 
 ENB Node Bringup with Single Cell and with OAM
-    ENB_Bringup    1    1
+#    Clean_ENB
+    ENB_Bringup    Single_Cell    OAM
 
 ENB Node Bringup with Single Cell and without OAM
     ENB_Bringup    0    1
@@ -83,27 +84,27 @@ Run scenario with
     Run_scenario   ${scenario_file} 
 
 Get l2Log
-    Open Connection And Log In    ${Board}    ${BD_USER}    ${BD_PASS}
+    Open Connection And Log In    ${ENB_IP}    ${ENB_USER}    ${ENB_PASS}
     SSHLibrary.Get File    ${L2_LOG_PATH1}    ${TARGET_PATH}
     Log out
 
 Get dbgLog
-    Open Connection And Log In    ${Board}    ${BD_USER}    ${BD_PASS}
+    Open Connection And Log In    ${ENB_IP}    ${ENB_USER}    ${ENB_PASS}
     SSHLibrary.Get File    ${L2_LOG_PATH2}    ${TARGET_PATH}
     Log out
 
 Get systemLog
-    Open Connection And Log In    ${Board}    ${BD_USER}    ${BD_PASS}
+    Open Connection And Log In    ${ENB_IP}    ${ENB_USER}    ${ENB_PASS}
     SSHLibrary.Get File    ${L2_LOG_PATH3}    ${TARGET_PATH}
     Log out
 
 Get UE_consoleLog
-    Open Connection And Log In    ${UE}    ${UE_USER}    ${UE_PASS}
+    Open Connection And Log In    ${UE_IP}    ${UE_USER}    ${UE_PASS}
     SSHLibrary.Get File    ${L2_LOG_PATH4}    ${TARGET_PATH}
     Log out
 
 Get UELog
-    Open Connection And Log In    ${UE}    ${UE_USER}    ${UE_PASS}
+    Open Connection And Log In    ${UE_IP}    ${UE_USER}    ${UE_PASS}
     SSHLibrary.Get File    ${L2_LOG_PATH5}    ${TARGET_PATH}
     Log out
 

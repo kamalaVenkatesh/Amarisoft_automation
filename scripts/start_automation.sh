@@ -2,4 +2,6 @@
 
 #Remove before logs
 rm -rf ../Logs/*
-robot --outputdir  ../Logs/ ../tests/01_UE_Attach_Detach.robot
+rm -rf ../lib/*.pyc
+rm -rf ../config/*.pyc
+robot --outputdir  ../Logs/ ../tests/01_SingleCeLL_OAM.robot
