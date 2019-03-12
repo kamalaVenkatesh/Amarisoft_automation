@@ -9,9 +9,10 @@ from robot.api import logger
 from robot.libraries.BuiltIn import BuiltIn
 sys.path.append('../config/')
 import config
+ue_prompt = ["# ", pexpect.EOF]
 
 def UE_Bringup():
-    prompt = ['# ', pexpect.EOF]
+    ue_prompt = [ue_prompt, pexpect.EOF]
     fout = open('../Logs/UE.log', 'wb')
     try:
         #logging into ue
@@ -20,26 +21,26 @@ def UE_Bringup():
                                                         logfile=fout)
         child.expect('(?i)password:', timeout=30)
         child.sendline(config.UE_PASS)
-        child.expect('# ',timeout=30)
+        child.expect(ue_prompt,timeout=30)
         child.sendline('echo "djhcdkjshk" >> abcd.txt')
-        child.expect('# ',timeout=30)
+        child.expect(ue_prompt,timeout=30)
         child.sendline("pkill -9 lteue-avx2*")
-        child.expect("# ",timeout=30)
+        child.expect(ue_prompt,timeout=30)
         child.sendline("service lte stop")
-        child.expect("# ",timeout=30)
+        child.expect(ue_prompt,timeout=30)
         child.sendline("service firewalld stop")
-        child.expect("# ",timeout=30)
+        child.expect(ue_prompt,timeout=30)
         child.sendline("service httpd start")
-        child.expect(prompt,timeout=30)
+        child.expect(ue_prompt,timeout=30)
         child.sendline("cd /root/trx_sdr")
-        child.expect(prompt,timeout=30)
+        child.expect(ue_prompt,timeout=30)
         child.sendline("./sdr_util upgrade ")
-        child.expect(prompt,timeout=30)
+        child.expect(ue_prompt,timeout=30)
     except Exception as err:
         logger.error('Fail to Bringup UE : ' + str(err))
 
 def Run_Scenario(scenario):
-    prompt = ['\w+\@\w+.*?\#', '\w+\@\w+.*?\$', '\#', '\$', '#', pexpect.EOF]
+    ue_prompt = ['\w+\@\w+.*?\#', '\w+\@\w+.*?\$', '\#', '\$', '#', pexpect.EOF]
     fout = open('../Logs/UE.log', 'wb')
     try:
     #logging into ue
@@ -49,12 +50,11 @@ def Run_Scenario(scenario):
         child.expect('(?i)password:', timeout=25)
         child.sendline(ue_passwd)
         logger.debug('ue login successful')
-        UE_Bringup()
         #Run scenario
         child.sendline('cd '+ config.UE_PATH)
-        child.expect(prompt,timeout=30)
+        child.expect(ue_prompt,timeout=30)
         child.sendline('./lteue config/'+ scenario+ '> run_scenario.log 2>&1 &')
-        child.expect(prompt,timeout=30)
+        child.expect(ue_prompt,timeout=30)
         child.sendline('tail -f run_scenario.log')
         child.expect("SIB found",timeout=50)
         logger.debug("Scenario started successfully with SIB Found")
@@ -62,23 +62,23 @@ def Run_Scenario(scenario):
         logger.error('Fail to Run Scenario : ' + str(err))
 
 def power_onoff_ue(msg,ue):
-    prompt = ['\w+\@\w+.*?\#', '\w+\@\w+.*?\$', '\#', '\$', '#', pexpect.EOF]
+    ue_prompt = ['\w+\@\w+.*?\#', '\w+\@\w+.*?\$', '\#', '\$', '#', pexpect.EOF]
     fout = open('../Logs/UE.log', 'wb')
     try:
         child = pexpect.spawn('ssh -o StrictHostKeyChecking=no root@' + ue_ip,
                                                 logfile=fout)
         child.expect('(?i)password:', timeout=25)
         child.sendline(ue_passwd)
-        child.expect(prompt,timeout=30)
+        child.expect(ue_prompt,timeout=30)
         for i in range(1,ue): 
             cmd= "/root/ue/doc/ws.js "+ config.UE_IP+":9002 '{\"message\": \""+msg+"\",\"ue_id\":"+i+"}'"
             child.sendline(cmd)
-            child.expect(prompt,timeout=30)
+            child.expect(ue_prompt,timeout=30)
     except Exception as err:
         logger.error('Fail to Run Scenario : ' + str(err))
 
 def UE_Teardown():
-    prompt = ['\w+\@\w+.*?\#', '\w+\@\w+.*?\$', '\#', '\$', '#', pexpect.EOF]
+    ue_prompt = ['\w+\@\w+.*?\#', '\w+\@\w+.*?\$', '\#', '\$', '#', pexpect.EOF]
     fout = open('../Logs/UE.log', 'wb')
     try:
         logger.info("let login into UE")
@@ -88,9 +88,9 @@ def UE_Teardown():
         child.sendline(ue_passwd)
         child.sendline('pkill -9 lteue-avx2')
         #collect logs
-        child.expect(prompt,timeout=30)
+        child.expect(ue_prompt,timeout=30)
         child.sendline('rm -r /tmp/ue0.log')
-        child.expect(prompt,timeout=30)
+        child.expect(ue_prompt,timeout=30)
     except Exception as err:
         logger.error('Error while UE Teardown: ' + str(err))
 
@@ -218,7 +218,7 @@ def check_downlink(tr_proto,ue):
     ssh.close()
 
 def VS_Prereq():
-    prompt = ['\w+\@\w+.*?\#', '\w+\@\w+.*?\$', '\#', '\$', '#', pexpect.EOF]
+    ue_prompt = ['\w+\@\w+.*?\#', '\w+\@\w+.*?\$', '\#', '\$', '#', pexpect.EOF]
     fout = open('../Logs/VS.log', 'wb')
     try:
         child = pexpect.spawn('ssh -o StrictHostKeyChecking=no root@' + config.VS_IP,
@@ -226,15 +226,15 @@ def VS_Prereq():
         child.expect('(?i)password:', timeout=25)
         child.sendline(config.VS_PASS)
         child.sendline('route add -net'+ config.vs_subnet +'gw'+ config.pgw)
-        child.expect(prompt,timeout=30)
+        child.expect(ue_prompt,timeout=30)
         child.sendline("ip addr show | awk /'/inet.*brd//{print $NF; exit}//'")
         interface = child.readline().rstrip()
         child.sendline('ifconfig ' + interface + ' mtu 1390 up')
-        child.expect(prompt,timeout=30)
+        child.expect(ue_prompt,timeout=30)
         child.sendline('pkill -9 iperf')
-        child.expect(prompt,timeout=30)
+        child.expect(ue_prompt,timeout=30)
         child.sendline('pkill -9 iperf')
-        child.expect(prompt,timeout=30)
+        child.expect(ue_prompt,timeout=30)
     except Exception as err:
         logger.error('Error in Video server prereqisites: ' + str(err))
 

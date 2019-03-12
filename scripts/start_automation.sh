@@ -1,7 +1,7 @@
 #start automation 
 
 #Remove before logs
-rm -rf ../Logs/*
+rm -rf ../logs/*
 rm -rf ../lib/*.pyc
 rm -rf ../config/*.pyc
-robot --outputdir  ../Logs/ ../tests/01_SingleCeLL_OAM.robot
+robot --outputdir  ../logs/ ../tests/01_SingleCeLL_OAM.robot
