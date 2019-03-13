@@ -34,10 +34,8 @@ UE_PASS         ="toor"
 VS_IP           ="172.27.22.156"
 VS_USER         ="root"
 VS_PASS         ="root123"
-
+UE_SUBNET       ="10.20.40.0/24"
 #------UE Configurations--------
 UE_PATH         ="/root/ue/config"
 CFG_PATH          ="../scenario_files/"
-
-
 

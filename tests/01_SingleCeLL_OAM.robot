@@ -12,14 +12,29 @@ Resource          ../resources/variables.robot
 *** Test Cases ***
 Setup Bringup
 #    EPC Node Bringup
-#    UE Node Bringup
-    ENB Node Bringup with Single Cell and with OAM
+    UE Node Bringup
+#    ENB Node Bringup with Single Cell and with OAM
 
-#UE Attach Detach Scenario
-#    Run scenario with   "ue_attach_detach.cfg"    1    
-#    Power on UE    
-#    Check_Ue_Status    "connected"    
-#    Power off UE   
-#    Check_Ue_Status    "disconnected"
+1 UE Attach Detach without any interval
+    UE Attach Detach Scenario    file=1_ue_attach_deatch.cfg    N_ue=1    	
+
+32 UE Attach Detach with interval 10s
+    UE Attach Detach Scenario    file=1_ue_attach_deatch.cfg    N_ue=1    Interval=10
+
+64 UE Attach Detach with interval 30s
+    UE Attach Detach Scenario    file=1_ue_attach_deatch.cfg    N_ue=1    Interval=30
+
+1 UE Attach Detach with uplink udp data
+    UE Attach Detach and Data Scenario    file=1_ue_attach_deatch.cfg    N_ue=1    type=uplink    proto=udp    data=512k
+
+1 UE Attach Detach with uplink tcp data
+    UE Attach Detach and Data Scenario    file=1_ue_attach_deatch.cfg    N_ue=1    type=uplink    proto=tcp    data=512k
+
+1 UE Attach Detach with downlink udp data
+    UE Attach Detach and Data Scenario    file=1_ue_attach_deatch.cfg    N_ue=1    type=downlink    proto=udp    data=512k
+
+1 UE Attach Detach with uplink tcp data
+    UE Attach Detach and Data Scenario    file=1_ue_attach_deatch.cfg    N_ue=1    type=downlink    proto=tcp    data=512k
+
 
 

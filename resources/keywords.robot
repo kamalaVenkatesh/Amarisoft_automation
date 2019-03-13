@@ -81,7 +81,26 @@ Run scenario with
     [Arguments]    ${scenario_file}
     Open Connection And Log In    ${UE_IP}    ${UE_USER}    ${UE_PASS}
     SSHLibrary.Put File    ${CFG_PATH}/${scenario_file}    ${UE_PATH}/${scenario_file}
-    Run_scenario   ${scenario_file} 
+    Run_scenario   ${scenario_file}
+
+UE Attach Detach Scenario
+    [Arguments]    ${file}    ${N_ue}    ${Interval}=0
+    Run scenario with   ${file}
+    Power on UE    ${N_ue} 
+    Check_Ue_Status    ${N_ue}    "connected" 
+    time.sleep(${Interval})
+    Power off UE   ${N_ue}
+    Check_Ue_Status    ${N_ue}    "disconnected"
+
+UE Attach Detach and Data Scenario
+    [Arguments]    ${file}    ${N_ue}    ${type}    ${proto}    ${data}    ${Interval}
+    Run scenario with   ${file}
+    Power on UE    ${N_ue}
+    Check_Ue_Status    ${N_ue}    "connected"
+    check_traffic    ${type}    ${proto}    ${data}    ${Interval}
+    Power off UE   ${N_ue}
+    Check_Ue_Status    ${N_ue}    "disconnected"
+ 
 
 Get l2Log
     Open Connection And Log In    ${ENB_IP}    ${ENB_USER}    ${ENB_PASS}
