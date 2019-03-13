@@ -1,0 +1,24 @@
+root@172.27.22.201's password: toor
+
+Warning: No xauth data; using fake authentication data for X11 forwarding.
+Last login: Wed Mar 13 11:33:49 2019 from 172.24.41.65
+]0;root@localhost:~[root@localhost ~]# pkill -9 lteue-avx2*
+pkill -9 lteue-avx2*
+]0;root@localhost:~[root@localhost ~]# service lte stop
+service lte stop
+Redirecting to /bin/systemctl stop lte.service
+]0;root@localhost:~[root@localhost ~]# service firewalld stop
+service firewalld stop
+Redirecting to /bin/systemctl stop firewalld.service
+]0;root@localhost:~[root@localhost ~]# service httpd start
+service httpd start
+Redirecting to /bin/systemctl start httpd.service
+]0;root@localhost:~[root@localhost ~]# cd /root/trx_sdr
+cd /root/trx_sdr
+]0;root@localhost:~/trx_sdr[root@localhost trx_sdr]# ./sdr_util upgrade 
+./sdr_util upgrade 
+=== Device /dev/sdr0 ===
+The FPGA firmware is already up to date
+=== Device /dev/sdr1 ===
+The FPGA firmware is already up to date
+]0;root@localhost:~/trx_sdr[root@localhost trx_sdr]# 

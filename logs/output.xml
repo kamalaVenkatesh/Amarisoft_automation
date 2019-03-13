@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot rpa="false" generated="20190313 16:15:38.405" generator="Robot 3.1.1 (Python 2.7.14 on linux2)">
+<suite source="/home/edureka/kamala/Amarisoft_automation/tests/01_SingleCeLL_OAM.robot" id="s1" name="01 SingleCeLL OAM">
+<test id="s1-t1" name="1 UE Attach Detach without any interval">
+<kw name="UE Attach Detach Scenario" library="keywords">
+<arguments>
+<arg>file=1_ue_attach_deatch.cfg</arg>
+<arg>N_ue=1</arg>
+</arguments>
+<kw name="Run scenario with" library="keywords">
+<arguments>
+<arg>${file}</arg>
+</arguments>
+<kw name="Open Connection And Log In" library="keywords">
+<arguments>
+<arg>${UE_IP}</arg>
+<arg>${UE_USER}</arg>
+<arg>${UE_PASS}</arg>
+</arguments>
+<kw name="Open Connection" library="SSHLibrary">
+<doc>Opens a new SSH connection to the given ``host`` and ``port``.</doc>
+<arguments>
+<arg>${arg1}</arg>
+</arguments>
+<status status="PASS" endtime="20190313 16:15:38.638" starttime="20190313 16:15:38.638"></status>
+</kw>
+<kw name="Login" library="SSHLibrary">
+<doc>Logs into the SSH server with the given ``username`` and ``password``.</doc>
+<arguments>
+<arg>${arg2}</arg>
+<arg>${arg3}</arg>
+</arguments>
+<msg timestamp="20190313 16:15:38.639" level="INFO">Logging into '172.27.22.201:22' as 'root'.</msg>
+<msg timestamp="20190313 16:15:40.056" level="INFO">Read output: Last login: Wed Mar 13 11:43:55 2019 from 172.24.41.65
+[root@localhost ~]#</msg>
+<msg timestamp="20190313 16:15:40.057" level="INFO">/home/edureka/.local/lib/python2.7/site-packages/paramiko/kex_ecdh_nist.py:39: CryptographyDeprecationWarning: encode_point has been deprecated on EllipticCurvePublicNumbers and will be removed in a future version. Please use EllipticCurvePublicKey.public_bytes to obtain both compressed and uncompressed point encoding.
+  m.add_string(self.Q_C.public_numbers().encode_point())
+/home/edureka/.local/lib/python2.7/site-packages/paramiko/kex_ecdh_nist.py:96: CryptographyDeprecationWarning: Support for unsafe construction of public numbers from encoded data will be removed in a future version. Please use EllipticCurvePublicKey.from_encoded_point
+  self.curve, Q_S_bytes
+/home/edureka/.local/lib/python2.7/site-packages/paramiko/kex_ecdh_nist.py:111: CryptographyDeprecationWarning: encode_point has been deprecated on EllipticCurvePublicNumbers and will be removed in a future version. Please use EllipticCurvePublicKey.public_bytes to obtain both compressed and uncompressed point encoding.
+  hm.add_string(self.Q_C.public_numbers().encode_point())</msg>
+<status status="PASS" endtime="20190313 16:15:40.058" starttime="20190313 16:15:38.639"></status>
+</kw>
+<status status="PASS" endtime="20190313 16:15:40.059" starttime="20190313 16:15:38.637"></status>
+</kw>
+<kw name="Put File" library="SSHLibrary">
+<doc>Uploads file(s) from the local machine to the remote machine.</doc>
+<arguments>
+<arg>${CFG_PATH}/${scenario_file}</arg>
+<arg>${UE_PATH}/${scenario_file}</arg>
+</arguments>
+<msg timestamp="20190313 16:15:40.100" level="INFO">[chan 1] Opened sftp connection (server version 3)</msg>
+<msg timestamp="20190313 16:15:40.140" level="INFO">[chan 2] Opened sftp connection (server version 3)</msg>
+<msg timestamp="20190313 16:15:40.145" level="FAIL">There are no source files matching '../scenario_files//1_ue_attach_deatch.cfg'.</msg>
+<status status="FAIL" endtime="20190313 16:15:40.146" starttime="20190313 16:15:40.061"></status>
+</kw>
+<status status="FAIL" endtime="20190313 16:15:40.146" starttime="20190313 16:15:38.637"></status>
+</kw>
+<status status="FAIL" endtime="20190313 16:15:40.147" starttime="20190313 16:15:38.636"></status>
+</kw>
+<status status="FAIL" endtime="20190313 16:15:40.147" critical="yes" starttime="20190313 16:15:38.635">There are no source files matching '../scenario_files//1_ue_attach_deatch.cfg'.</status>
+</test>
+<doc>test1</doc>
+<status status="FAIL" endtime="20190313 16:15:40.149" starttime="20190313 16:15:38.408"></status>
+</suite>
+<statistics>
+<total>
+<stat fail="1" pass="0">Critical Tests</stat>
+<stat fail="1" pass="0">All Tests</stat>
+</total>
+<tag>
+</tag>
+<suite>
+<stat fail="1" id="s1" name="01 SingleCeLL OAM" pass="0">01 SingleCeLL OAM</stat>
+</suite>
+</statistics>
+<errors>
+</errors>
+</robot>
